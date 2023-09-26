@@ -1,5 +1,9 @@
 # music-suggestion
 
+ ### KOD ÇIKTISI
+ 
+
+
  Spotify API'sini kullanarak kullanıcının en iyi şarkılarını alır ve ardından bu şarkılardan rastgele seçilen birkaçını listeleyen bir Python uygulamasını içerir. İşte kodun adım adım nasıl yazılacağının anlatımı:
 
 İlk adımda, Spotify API'sine erişim için kullanılacak bir token oluşturuyoruz. Bu token'i Spotify Developer Portal'da oluşturabilirsiniz.
