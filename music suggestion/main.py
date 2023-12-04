@@ -9,7 +9,7 @@ def fetch_web_api(endpoint, method, body=None):
     headers = {
         'Authorization': f'Bearer {token}',
     }
-
+ 
     url = f'https://api.spotify.com/{endpoint}'
     if method == 'GET':
         response = requests.get(url, headers=headers)
