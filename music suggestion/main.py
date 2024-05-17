@@ -3,7 +3,7 @@ import random
 
 # Spotify API Authorization token
 # API anahtarınızı buraya ekleyin
-token = 'YOUR_SPOTIFY_API_KEY'
+token = 'YOUR_SPOTIFY_API_KEY' 
 
 def fetch_web_api(endpoint, method, body=None):
     headers = {
