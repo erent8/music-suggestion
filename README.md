@@ -1,4 +1,5 @@
 # music-suggestion
+It offers song suggestions to the user using the spotify api address.
 
  ### KOD ÇIKTISI
 
