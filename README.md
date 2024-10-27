@@ -1,4 +1,6 @@
 # Music Suggestion
+![download](https://github.com/user-attachments/assets/84ee6c6a-a3e2-4228-982f-19fb0a4cab9d)
+
 
 Bu proje, Spotify API'yi kullanarak kullanıcıya önerilen şarkıları listeleyen bir Python uygulamasıdır. Kullanıcıların en popüler şarkılarını getirir ve rastgele öneriler sunar.
 
