@@ -33,7 +33,7 @@ SPOTIFY_API_TOKEN değeri, aldığınız geçerli bir Access Token ile değişti
 ### Projeyi çalıştırmak için:
 
 ```python
-Spotify.py
+main.py
 ```
 Kod çalıştırıldığında, kullanıcıya rastgele önerilen şarkılar listelenecektir.
 
