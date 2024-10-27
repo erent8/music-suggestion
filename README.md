@@ -4,7 +4,7 @@ Bu proje, Spotify API'yi kullanarak kullanıcıya önerilen şarkıları listele
 
 ## Gereksinimler
 
-- **Spotify Developer Hesabı**: Spotify API’ye erişim için Spotify Developer Portal’a kaydolmanız gerekmektedir.
+- **Spotify Developer Hesabı**: Spotify API’ye erişim için [Spotify Developer Portal'a ](https://developer.spotify.com/) kaydolmanız gerekmektedir.
 - **Spotify API Token**: Spotify API’ye bağlanabilmek için bir `Access Token` gereklidir. Token almak için OAuth 2.0 yetkilendirme akışı kullanılmalıdır.
 - **Python `requests` Kütüphanesi**: Spotify API ile iletişim kurmak için gerekli olan bu kütüphaneyi yüklemelisiniz.
   
