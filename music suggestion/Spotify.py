@@ -1,9 +1,11 @@
 import requests
 import random
+import os
 
 # Spotify API Authorization token
 # Spotify API anahtarınızı buraya ekleyin
 SPOTIFY_API_TOKEN = 'YOUR_SPOTIFY_API_KEY'
+RECOMMENDED_SONGS_FILE = 'recommended_songs.txt'
 
 def fetch_from_spotify_api(endpoint, request_method, request_body=None):
     """
@@ -40,6 +42,23 @@ def get_top_tracks(limit=50):
     endpoint = f'v1/me/top/tracks?time_range=short_term&limit={limit}'
     return fetch_from_spotify_api(endpoint, 'GET')
 
+def load_recommended_songs():
+    """
+    Daha önce önerilen şarkıları dosyadan yükler.
+    """
+    if os.path.exists(RECOMMENDED_SONGS_FILE):
+        with open(RECOMMENDED_SONGS_FILE, 'r') as file:
+            return set(line.strip() for line in file)
+    return set()
+
+def save_recommended_songs(songs):
+    """
+    Önerilen şarkıları dosyaya kaydeder.
+    """
+    with open(RECOMMENDED_SONGS_FILE, 'a') as file:
+        for song in songs:
+            file.write(f"{song}\n")
+
 def get_random_tracks(limit=10):
     """
     Rastgele şarkılar seçer ve bunları formatlar.
@@ -48,6 +67,7 @@ def get_random_tracks(limit=10):
     :return: Rastgele seçilmiş şarkıların formatlanmış listesi
     """
     top_tracks = get_top_tracks(limit)
+    recommended_songs = load_recommended_songs()
     
     if 'items' in top_tracks:
         random_tracks = random.sample(top_tracks['items'], min(limit, len(top_tracks['items'])))
@@ -55,7 +75,10 @@ def get_random_tracks(limit=10):
             f"{track['name']} by {', '.join([artist['name'] for artist in track['artists']])}"
             for track in random_tracks
         ]
-        return formatted_tracks
+        new_tracks = [track for track in formatted_tracks if track not in recommended_songs]
+        if new_tracks:
+            save_recommended_songs(new_tracks)
+        return new_tracks
     else:
         return ["Top tracks could not be fetched."]
 
@@ -67,8 +90,11 @@ def main():
     random_songs = get_random_tracks(num_tracks)
     
     print("Önerilen Şarkılar:")
-    for i, song in enumerate(random_songs, start=1):
-        print(f"{i}. {song}")
+    if random_songs:
+        for i, song in enumerate(random_songs, start=1):
+            print(f"{i}. {song}")
+    else:
+        print("Yeni şarkı önerisi bulunamadı.")
 
 if __name__ == "__main__":
     main()
