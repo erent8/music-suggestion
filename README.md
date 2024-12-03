@@ -1,57 +1,50 @@
 # Music Suggestion
 ![download](https://github.com/user-attachments/assets/84ee6c6a-a3e2-4228-982f-19fb0a4cab9d)
 
+This project is a Python application that lists recommended songs to the user using Spotify API. It fetches the most popular songs of the users and provides random suggestions.
 
-Bu proje, Spotify API'yi kullanarak kullanıcıya önerilen şarkıları listeleyen bir Python uygulamasıdır. Kullanıcıların en popüler şarkılarını getirir ve rastgele öneriler sunar.
+## Requirements
 
-## Gereksinimler
+- **Spotify Developer Account**: You need to register to [Spotify Developer Portal ](https://developer.spotify.com/) to access Spotify API.
+- **Spotify API Token**: An `Access Token` is required to connect to Spotify API. OAuth 2.0 authorization flow must be used to obtain the token.
+- **Python `requests` Library**: You need to install this library which is required to communicate with Spotify API.
 
-- **Spotify Developer Hesabı**: Spotify API’ye erişim için [Spotify Developer Portal'a ](https://developer.spotify.com/) kaydolmanız gerekmektedir.
-- **Spotify API Token**: Spotify API’ye bağlanabilmek için bir `Access Token` gereklidir. Token almak için OAuth 2.0 yetkilendirme akışı kullanılmalıdır.
-- **Python `requests` Kütüphanesi**: Spotify API ile iletişim kurmak için gerekli olan bu kütüphaneyi yüklemelisiniz.
-  
-  ```bash
-  pip install requests
+```bash
+pip install requests
+```
+### Spotify Developer Account and Application Creation
+Create an account by accessing the [Spotify Developer Portal](https://developer.spotify.com/)here.
+- After logging in, create a new application by clicking on the Create an App option from the Dashboard section.
+- You will be able to see the Client ID and Client Secret information on the page of the application you created.
 
-### Spotify Developer Hesabı ve Uygulama Oluşturma
-[Spotify Developer Portal'a ](https://developer.spotify.com/)buradan ulaşarak bir hesap oluşturun.
-- Giriş yaptıktan sonra, Dashboard bölümünden Create an App seçeneğine tıklayarak yeni bir uygulama oluşturun.
-- Oluşturduğunuz uygulamanın sayfasında Client ID ve Client Secret bilgilerini görebileceksiniz.
-### Spotify API Token Alımı
-- Spotify API’ye bağlanmak için bir Access Token alın. Bunun için Spotify’ın OAuth 2.0 tabanlı yetkilendirme sistemini kullanabilirsiniz.
-- Authorization Code Flow veya Client Credentials Flow kullanarak bir Access Token elde edebilirsiniz.
-- Authorization Code Flow ile Token Alımı: Kullanıcıdan erişim izni almak için öncelikle bir yetkilendirme isteği gönderin. Daha sonra elde ettiğiniz authorization code ile Access Token alın.
+### Spotify API Token Acquisition
+- Get an Access Token to connect to the Spotify API. You can use Spotify's OAuth 2.0 based authorization system for this.
+- You can get an Access Token using Authorization Code Flow or Client Credentials Flow.
+- Token Acquisition with Authorization Code Flow: First send an authorization request to get access permission from the user. Then get the Access Token with the authorization code you get.
 
-- Client Credentials Flow ile Token Alımı: Sadece genel verilere erişim gerektiren projeler için kullanılabilir. Bu akış, uygulamanızın kimlik bilgilerini kullanarak direkt bir Access Token almanızı sağlar.
+- Token Acquisition with Client Credentials Flow: It can only be used for projects that require access to public data. This flow allows you to get an Access Token directly using your application's credentials.
 
-### Spotify API Endpoint Bilgileri
-Spotify API endpoint’leri /v1 ile başlar. Örneğin, kullanıcının en popüler şarkılarını almak için v1/me/top/tracks endpoint'ini kullanabilirsiniz.
-Spotify API dökümantasyonuna erişmek için Spotify API Reference sayfasını inceleyebilirsiniz.
-### Kullanım
-SPOTIFY_API_TOKEN değeri, aldığınız geçerli bir Access Token ile değiştirilmelidir.
+### Spotify API Endpoint Information
+Spotify API endpoints start with /v1. For example, to get the user's most popular songs, you can use the v1/me/top/tracks endpoint.
 
-### Projeyi çalıştırmak için:
+You can access the Spotify API documentation by reviewing the Spotify API Reference page.
+### Usage
+SPOTIFY_API_TOKEN must be replaced with a valid Access Token that you received.
+
+### To run the project:
 
 ```python
 main.py
 ```
-Kod çalıştırıldığında, kullanıcıya rastgele önerilen şarkılar listelenecektir.
+When the code is run, the user will be listed with randomly suggested songs.
 
- ### KOD ÇIKTISI
+### CODE OUTPUT
 
- ---------------------------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------
 
- 
- ![abcd](https://github.com/erent8/music-suggestion/assets/86615310/335db117-39ff-4060-9d62-639d763fe36d)
+![abcd](https://github.com/erent8/music-suggestion/assets/86615310/335db117-39ff-4060-9d62-639d763fe36d)
 
- 
------------------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------
 
-### Lisans
-Bu proje MIT lisansı altında lisanslanmıştır
-
-
-
-
-
- 
+### License
+This project is licensed under the MIT license
