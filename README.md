@@ -1,8 +1,7 @@
 # Music Suggestion
 ![download](https://github.com/user-attachments/assets/84ee6c6a-a3e2-4228-982f-19fb0a4cab9d)
-
-This project is a Python application that lists recommended songs to the user using Spotify API. It fetches the most popular songs of the users and provides random suggestions.
-
+* This project is a Python application that lists recommended songs to the user using Spotify API. It fetches the most popular songs of the users and provides random suggestions.
+- [Medium Link](medium.com/@erennt8/spotify-api-ile-müzik-öneri-uygulaması-a5f6a7debf45)
 ## Requirements
 
 - **Spotify Developer Account**: You need to register to [Spotify Developer Portal ](https://developer.spotify.com/) to access Spotify API.
