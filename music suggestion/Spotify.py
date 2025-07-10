@@ -1,31 +1,39 @@
-import requests  # For making HTTP requests to Spotify API
-import random  # For selecting random songs
-import os  # For file operations
+import requests
+import random
+import os
+from dataclasses import dataclass
+from typing import List, Optional
 
-# Spotify API Authorization token - replace 'YOUR_SPOTIFY_API_KEY' with your actual token
-SPOTIFY_API_TOKEN = 'YOUR_SPOTIFY_API_KEY'
+# Spotify API Authorization token
+SPOTIFY_API_TOKEN = os.getenv('SPOTIFY_API_TOKEN', 'YOUR_SPOTIFY_API_KEY')
 
-# File to store recommended songs
+# File paths
 RECOMMENDED_SONGS_FILE = 'recommended_songs.txt'
-
-# File to store liked songs
 LIKED_SONGS_FILE = 'liked_songs.txt'
+
+@dataclass
+class Track:
+    id: str
+    name: str
+    artists: List[str]
+    album_name: str
+    album_image_url: str
+    preview_url: Optional[str]
+    uri: str
+
+    def format_display(self) -> str:
+        artists_str = ', '.join(self.artists)
+        return f"{self.name} by {artists_str} (Album: {self.album_name})"
 
 def fetch_from_spotify_api(endpoint, request_method, request_body=None):
     """
     Generic function to interact with Spotify's Web API.
-    
-    :param endpoint: The Spotify API endpoint (e.g., 'v1/me/top/tracks').
-    :param request_method: The HTTP method ('GET' or 'POST').
-    :param request_body: Optional JSON body for POST requests.
-    :return: Parsed JSON response from Spotify API or None if an error occurs.
     """
     headers = {
-        'Authorization': f'Bearer {SPOTIFY_API_TOKEN}',  # Add the authorization token
+        'Authorization': f'Bearer {SPOTIFY_API_TOKEN}',
     }
-    url = f'https://api.spotify.com/{endpoint}'  # Full API URL
+    url = f'https://api.spotify.com/{endpoint}'
     try:
-        # Handle GET and POST requests
         if request_method == 'GET':
             response = requests.get(url, headers=headers)
         elif request_method == 'POST':
@@ -33,100 +41,114 @@ def fetch_from_spotify_api(endpoint, request_method, request_body=None):
         else:
             raise ValueError("Invalid HTTP method. Use 'GET' or 'POST'.")
         
-        response.raise_for_status()  # Raise exception for HTTP errors
-        return response.json()  # Return the parsed JSON response
+        response.raise_for_status()
+        return response.json()
     except requests.exceptions.RequestException as e:
-        print(f"API Error: {e}")  # Log errors if any
+        print(f"API Error: {e}")
         return None
 
 def get_top_tracks(limit=50):
     """
     Fetch the user's top tracks from Spotify.
-    
-    :param limit: Number of tracks to retrieve (maximum is 50).
-    :return: List of top tracks or None if API call fails.
     """
     endpoint = f'v1/me/top/tracks?time_range=short_term&limit={limit}'
     return fetch_from_spotify_api(endpoint, 'GET')
 
+def parse_track_data(track_data) -> Track:
+    """
+    Parse raw track data from Spotify API into Track object.
+    """
+    return Track(
+        id=track_data['id'],
+        name=track_data['name'],
+        artists=[artist['name'] for artist in track_data['artists']],
+        album_name=track_data['album']['name'],
+        album_image_url=track_data['album']['images'][0]['url'] if track_data['album']['images'] else None,
+        preview_url=track_data.get('preview_url'),
+        uri=track_data['uri']
+    )
+
+def get_track_recommendations(seed_tracks: List[str], limit=10):
+    """
+    Get track recommendations based on seed tracks.
+    """
+    seed_tracks_str = ','.join(seed_tracks[:5])  # Spotify allows max 5 seed tracks
+    endpoint = f'v1/recommendations?seed_tracks={seed_tracks_str}&limit={limit}'
+    response = fetch_from_spotify_api(endpoint, 'GET')
+    
+    if response and 'tracks' in response:
+        return [parse_track_data(track) for track in response['tracks']]
+    return []
+
 def load_recommended_songs():
     """
     Load already recommended songs from a file.
-    
-    :return: A set of recommended songs.
     """
     if os.path.exists(RECOMMENDED_SONGS_FILE):
         with open(RECOMMENDED_SONGS_FILE, 'r') as file:
-            return set(line.strip() for line in file)  # Read and return as a set
+            return set(line.strip() for line in file)
     return set()
 
-def save_recommended_songs(songs):
+def save_recommended_songs(songs: List[Track]):
     """
     Save newly recommended songs to a file.
-    
-    :param songs: List of songs to save.
     """
     with open(RECOMMENDED_SONGS_FILE, 'a') as file:
         for song in songs:
-            file.write(f"{song}\n")  # Write each song on a new line
+            file.write(f"{song.format_display()}\n")
 
 def load_liked_songs():
     """
     Load the user's liked songs from a file.
-    
-    :return: A list of liked songs.
     """
     if os.path.exists(LIKED_SONGS_FILE):
         with open(LIKED_SONGS_FILE, 'r') as file:
-            return [line.strip() for line in file]  # Read and return as a list
+            return [line.strip() for line in file]
     return []
 
-def save_liked_song(song):
+def save_liked_song(song: str):
     """
     Save a single liked song to the liked songs file.
-    
-    :param song: The song to save.
     """
     with open(LIKED_SONGS_FILE, 'a') as file:
-        file.write(f"{song}\n")  # Write the song on a new line
+        file.write(f"{song}\n")
 
-def get_random_tracks(limit=10):
+def get_random_tracks(limit=10) -> List[Track]:
     """
-    Get random tracks from the user's top tracks.
-    
-    :param limit: The number of random tracks to fetch.
-    :return: A list of formatted track strings.
+    Get random tracks from the user's top tracks and recommendations.
     """
-    top_tracks = get_top_tracks(limit)  # Fetch top tracks
-    recommended_songs = load_recommended_songs()  # Load previously recommended songs
+    top_tracks_response = get_top_tracks(limit)
+    recommended_songs = load_recommended_songs()
     
-    if top_tracks and 'items' in top_tracks:
-        # Randomly select tracks from the top tracks list
-        random_tracks = random.sample(top_tracks['items'], min(limit, len(top_tracks['items'])))
-        formatted_tracks = [
-            f"{track['name']} by {', '.join([artist['name'] for artist in track['artists']])} (Album: {track['album']['name']})"
-            for track in random_tracks
-        ]
-        # Exclude tracks already recommended
-        new_tracks = [track for track in formatted_tracks if track not in recommended_songs]
+    if top_tracks_response and 'items' in top_tracks_response:
+        top_tracks = [parse_track_data(track) for track in top_tracks_response['items']]
+        
+        # Get seed tracks for recommendations
+        seed_tracks = random.sample([track.id for track in top_tracks], min(5, len(top_tracks)))
+        recommended_tracks = get_track_recommendations(seed_tracks, limit)
+        
+        # Combine and shuffle tracks
+        all_tracks = top_tracks + recommended_tracks
+        random_tracks = random.sample(all_tracks, min(limit, len(all_tracks)))
+        
+        # Filter out already recommended songs
+        new_tracks = [track for track in random_tracks 
+                     if track.format_display() not in recommended_songs]
+        
         if new_tracks:
-            save_recommended_songs(new_tracks)  # Save new recommendations
+            save_recommended_songs(new_tracks)
         return new_tracks
-    else:
-        return ["Top tracks could not be fetched."]
+    return []
 
-def create_playlist(name, track_uris):
+def create_playlist(name: str, track_uris: List[str]):
     """
     Create a new playlist on Spotify and add tracks to it.
-    
-    :param name: The name of the playlist.
-    :param track_uris: List of Spotify track URIs to add to the playlist.
     """
     endpoint = "v1/me/playlists"
     body = {
         "name": name,
         "description": "Playlist created with Music Suggestion app",
-        "public": False  # Set playlist visibility to private
+        "public": False
     }
     playlist_response = fetch_from_spotify_api(endpoint, "POST", body)
     if playlist_response and "id" in playlist_response:
@@ -147,7 +169,7 @@ def main():
     print("\nRecommended Songs:")
     if random_songs:
         for i, song in enumerate(random_songs, start=1):
-            print(f"{i}. {song}")
+            print(f"{i}. {song.format_display()}")
         while True:
             print("\nOptions:")
             print("1. Save a song to Liked Songs")
@@ -161,7 +183,7 @@ def main():
                 # Save a liked song
                 song_number = int(input("Enter the song number to like: "))
                 if 1 <= song_number <= len(random_songs):
-                    save_liked_song(random_songs[song_number - 1])
+                    save_liked_song(random_songs[song_number - 1].format_display())
                     print("Song saved to Liked Songs.")
                 else:
                     print("Invalid song number.")
@@ -170,11 +192,11 @@ def main():
                 random_songs = get_random_tracks(num_tracks)
                 print("\nNew Recommended Songs:")
                 for i, song in enumerate(random_songs, start=1):
-                    print(f"{i}. {song}")
+                    print(f"{i}. {song.format_display()}")
             elif choice == "3":
                 # Create a Spotify playlist
                 playlist_name = input("Enter a name for the playlist: ")
-                track_uris = [f"spotify:track:{song.split(' - ')[0]}" for song in random_songs]
+                track_uris = [f"spotify:track:{song.id}" for song in random_songs]
                 create_playlist(playlist_name, track_uris)
             elif choice == "4":
                 # View liked songs
